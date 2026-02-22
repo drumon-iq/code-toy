@@ -2,7 +2,7 @@
 #include "../raylib/src/raylib.h"
 #include "main.h"
 
-#define MAX_TRACK 100
+#define MAX_TRACK 120 //5 seconds of line history
 
 struct bouncing_ball {
     Vector2 pos;

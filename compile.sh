@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 
-gcc *.c ../libraylib.a -o coder -lm -Wall -pedantic
+gcc *.c ../libraylib.a -o uwuiambinaryfile -lm -Wall -pedantic
