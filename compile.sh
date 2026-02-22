@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 
-gcc main.c ../libraylib.a -o coder -lm
+gcc *.c ../libraylib.a -o coder -lm -Wall -pedantic
