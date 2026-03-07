@@ -4,8 +4,6 @@
 #include "../raylib/src/raylib.h"
 #include "main.h"
 
-int debug = 0;
-
 struct text_block {
     int textsize;
     int count;
@@ -14,25 +12,31 @@ struct text_block {
     char *text;
 };
 
-char * getlineFILE(FILE *f, int line);
+int debug = 0;
+int dogui = 1;
+Vector2 mousepos;
+Vector2 ballpos;
+int hidetext = 0;
+int hideanimation = 1;
+int lineclick = -1;
+
+struct text_block textB = { 128, 0, 0, 0, 0 };
+
+
+char * getlineFILE(char filename[], int line);
+void updateWindow();
 
 int main (int argc, char** argv)
 {
     char buf;
     FILE *file;
-    Vector2 mousepos;
-    Vector2 ballpos;
-    int hidetext = 0;
-    int hideanimation = 1;
-    int lineclick = -1;
 
-    struct text_block textB = {
-	128, 0, 0, 0,
-	(char *) malloc(sizeof(char) * textB.textsize)};
+    testfunc();
+
+    textB.text = (char *) malloc(sizeof(char) * textB.textsize);
 
     file = fopen("main.c", "r");
-    if (file == NULL)
-	return -1;
+    if (!file) exit(-1);
 
     while ((buf = fgetc(file)) != EOF) {
 	if (textB.count == textB.textsize-1) {
@@ -44,28 +48,40 @@ int main (int argc, char** argv)
 	textB.count++;
     }
     textB.text[textB.count] = '\0';
+    fclose(file);
+
     if (debug) {
 	printf("%s",textB.text);
-	printf("%d characters in file", textB.count);
-	printf("%s", getlineFILE(fopen("main.c","r"),1));
+	printf("%d characters in file\n", textB.count);
+	printf("%s\n", getlineFILE("main.c",1));
     }
 
-    InitWindow(WIN_W, WIN_H, "[coder]");
-    SetTargetFPS(24);
+    if (dogui) {
+	InitWindow(WIN_W, WIN_H, "[coder]");
+	SetTargetFPS(24);
+	updateWindow();
+	CloseWindow();
+    }
 
-    while (!WindowShouldClose()) {
+    free(textB.text);
+
+    return 0;
+}
+
+void updateWindow()
+{
+    char lineclick_text[50] = {0};
+    while (!WindowShouldClose() && dogui) {
 	char info_text[256] = {0};
 	char line_text[256] = {0};
 	char mouse_text[128] = {0};
-	char lineclick_text[50] = {0};
-	//char *getline;
+	char *getline;
 	mousepos = GetMousePosition();
-	//getline = getlineFILE(fopen("main.c","r"),lineclick);
 
-	//snprintf(lineclick_text, 49, "line %d: %s", lineclick, getline);
-	snprintf(lineclick_text, 49, "line %d", lineclick);
+	//snprintf(lineclick_text, 49, "line %d", lineclick);
 	snprintf(mouse_text, 127, "mx: %.1f, my: %.1f ", mousepos.x, mousepos.y);
 	snprintf(line_text, 63, "lines: %d ", textB.lineC);
+
 	strncat(info_text, line_text, 255);
 	strncat(info_text, mouse_text, 255);
 	if (lineclick != -1) {
@@ -89,6 +105,10 @@ int main (int argc, char** argv)
 		    lineclick = 1 + (mousepos.y + textB.scroll-TEXTOFFSET)/(TEXTSIZE+2);
 		    ballpos.x = mousepos.x;
 		    ballpos.y = mousepos.y;
+
+		    getline = getlineFILE("main.c", lineclick);
+		    snprintf(lineclick_text, 49, "line %d: %s", lineclick, getline);
+		    free(getline);
 		}
 		else
 		    lineclick = -1;
@@ -124,22 +144,20 @@ int main (int argc, char** argv)
 	    DrawText(info_text, 35, 5, TEXTSIZE, RAYWHITE);
 
 	EndDrawing();
-	//if(lineclick != -1) free(getline); //LMAO forget this again i dare you
     }
-
-    CloseWindow();
-    free(textB.text);
-
-    return 0;
 }
 
-char* getlineFILE(FILE *f, int l)
+char* getlineFILE(char filename[], int l)
 {
     if (l == -1) return 0;
 
     char buf;
     int lineSize = 1;
     char *line = (char *) malloc(sizeof(char)*2);
+
+    FILE *f = fopen(filename, "r");
+    if (!f)
+	exit(-1);
 
     l--;
 
@@ -161,5 +179,6 @@ char* getlineFILE(FILE *f, int l)
 	line[lineSize-1] = '\0';
     }
 
+    fclose(f);
     return line;
 }

@@ -4,3 +4,4 @@
 #define TEXTOFFSET 35
 
 void doBouncingBall();
+void testfunc();
