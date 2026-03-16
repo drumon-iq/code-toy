@@ -4,6 +4,13 @@
 #include "../raylib/src/raylib.h"
 #include "main.h"
 
+#define TOTAL_ANIMATIONS 2 //gotta update this manually?
+
+enum Num_Animations {
+    BOUNCING_BALL = 1,
+    GRAPHS
+};
+
 struct text_block {
     int textsize;
     int count;
@@ -22,6 +29,7 @@ int lineclick = -1;
 
 struct text_block textB = { 128, 0, 0, 0, 0 };
 
+enum Num_Animations selAnimation = GRAPHS;
 
 char * getlineFILE(char filename[], int line);
 void updateWindow();
@@ -95,6 +103,17 @@ void updateWindow()
 	else if (IsKeyDown(KEY_UP))
 	    if(!hidetext && textB.scroll > 0) textB.scroll -= TEXTSIZE;
 
+	if (IsKeyPressed(KEY_RIGHT)) 
+	    if (selAnimation < TOTAL_ANIMATIONS) selAnimation++;
+	    else selAnimation=1;
+	if (IsKeyPressed(KEY_LEFT))
+	    if (selAnimation > 1) selAnimation--;
+	    else selAnimation = TOTAL_ANIMATIONS;
+	if (IsKeyPressed(KEY_SPACE)) {
+	    hidetext = !hidetext;
+	    hideanimation = !hidetext;
+	}
+
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 	    if(mousepos.x >= 5 && mousepos.y >= 5 && mousepos.x <= 25 && mousepos.y <= 25) {
 		hidetext = !hidetext;
@@ -134,7 +153,14 @@ void updateWindow()
 	}
 
 	if (!hideanimation){
-	    doBouncingBall();
+	    switch(selAnimation) {
+		case BOUNCING_BALL:
+		    doBouncingBall();
+		    break;
+		case GRAPHS:
+		    doGraphs();
+		    break;
+	    }
 	}
 
 	//Status bar

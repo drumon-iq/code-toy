@@ -5,3 +5,4 @@
 
 void doBouncingBall();
 void testfunc();
+void doGraphs();
